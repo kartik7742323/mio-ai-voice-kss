@@ -381,6 +381,19 @@
   .qc-team-card .qct-body .lbl{color:var(--accent);font-size:11px;letter-spacing:.22em;text-transform:uppercase;font-weight:800;margin-bottom:6px}
   .qc-team-card .qct-body p{color:var(--text-soft);font-size:14.5px;line-height:1.6}
 
+  /* DID replacement — 3-step horizontal process */
+  .did-flow{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:6px;position:relative}
+  .did-step{background:var(--surface);border-radius:20px;padding:22px 24px 20px;box-shadow:var(--shadow);position:relative;overflow:hidden;transition:transform .2s ease,box-shadow .2s ease}
+  .did-step:hover{transform:translateY(-3px);box-shadow:var(--shadow-md)}
+  .did-step::before{content:"";position:absolute;top:0;left:0;width:100%;height:4px;background:linear-gradient(90deg,var(--accent),var(--cyan));border-radius:20px 20px 0 0}
+  .did-step::after{content:"→";position:absolute;right:-16px;top:50%;transform:translateY(-50%);color:var(--accent);font-size:24px;font-weight:700;z-index:4}
+  .did-step:last-child::after{display:none}
+  .did-step .toprow{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .did-step .n{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,var(--accent),var(--cyan));color:#fff;font-weight:800;font-size:17px;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px -4px rgba(124,58,237,.4);flex-shrink:0}
+  .did-step .role{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);background:var(--accent-bg);padding:5px 11px;border-radius:6px;font-weight:800}
+  .did-step .h{font-size:19px;font-weight:800;color:var(--text);margin-bottom:9px;letter-spacing:-.3px;line-height:1.2}
+  .did-step .p{font-size:13.5px;color:var(--text-soft);line-height:1.6}
+
   /* Knowledge grid */
   .knowledge-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:6px}
   .know-card{
@@ -840,12 +853,72 @@
     <div class="slide-num">09</div>
   </section>
 
-  <!-- 10. Customer Expectation -->
+  <!-- 10. DID Replacement Process -->
+  <section class="slide">
+    <div class="orb orb-cyan" style="width:380px;height:380px;top:-100px;right:-90px"></div>
+    <div class="orb orb-violet" style="width:320px;height:320px;bottom:-80px;left:-80px"></div>
+
+    <div class="brand">Customer Expectations · 03 · For CS</div>
+
+    <div class="slide-head">
+      <div class="left">
+        <h2>DID Replacement Process</h2>
+        <div class="h-tag">What happens after a number is flagged for rotation</div>
+      </div>
+    </div>
+
+    <div class="qc-team-card" style="margin-bottom:20px">
+      <div class="qcicon">🔁</div>
+      <div class="qct-body">
+        <div class="lbl">When this kicks in</div>
+        <p>Once it's decided a DID must be replaced — e.g. a spam-flagged number from the QC flow — the number runs through a <b>3-step replacement process</b> before the new DID goes live.</p>
+      </div>
+    </div>
+
+    <div class="sub-label">The 3-step process</div>
+    <div class="did-flow">
+      <div class="did-step">
+        <div class="toprow">
+          <div class="n">1</div>
+          <span class="role">Request</span>
+        </div>
+        <div class="h">SUR Form + Invoice</div>
+        <div class="p">An <b>SUR form</b> is filled and an <b>invoice</b> is generated, raising the request for DID replacement.</div>
+      </div>
+      <div class="did-step">
+        <div class="toprow">
+          <div class="n">2</div>
+          <span class="role">Subscription Ops</span>
+        </div>
+        <div class="h">Review &amp; Go-Ahead</div>
+        <div class="p"><b>Subscription Ops</b> reviews the SUR and invoice, then gives the Ops team the <b>go-ahead</b> to proceed.</div>
+      </div>
+      <div class="did-step">
+        <div class="toprow">
+          <div class="n">3</div>
+          <span class="role">Ops Team</span>
+        </div>
+        <div class="h">Number Replaced</div>
+        <div class="p"><b>Ops team</b> replaces the phone number on the agent, completing the DID rotation.</div>
+      </div>
+    </div>
+
+    <div class="process-notes" style="margin-top:18px">
+      <div class="process-note cs">
+        <div class="h">where CS plugs in</div>
+        <div class="p">The <b>SUR form + invoice</b> is the approval &amp; billing step CS drives with the client (tying back to the QC "Number Rotation" step). Ops can only proceed once Subscription Ops clears it — so set client expectations on this turnaround.</div>
+      </div>
+    </div>
+
+    <div class="slide-num">10</div>
+  </section>
+
+  <!-- 11. Customer Expectation -->
   <section class="slide">
     <div class="orb orb-violet" style="width:420px;height:420px;top:-100px;right:-100px"></div>
     <div class="orb orb-cyan" style="width:320px;height:320px;bottom:-80px;left:-80px"></div>
 
-    <div class="brand">Customer Expectations · 03 · For CS</div>
+    <div class="brand">Customer Expectations · 04 · For CS</div>
 
     <div class="slide-head">
       <div class="left">
@@ -900,7 +973,7 @@
 
     </div>
 
-    <div class="slide-num">10</div>
+    <div class="slide-num">11</div>
   </section>
 
 </div>
