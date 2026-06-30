@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>KSS — Mio AI Voice: Market Learnings &amp; Customer Expectations</title>
+<style>
+  :root{
+    --bg:#F4F5FB;
+    --surface:#FFFFFF;
+    --card:#FFFFFF;
+    --card-soft:#F8FAFC;
+    --card-tint:#FBFAFF;
+    --line:#E6E9F2;
+    --line-soft:#EEF1F8;
+    --text:#0F172A;
+    --text-soft:#1E293B;
+    --muted:#64748B;
+    --muted-2:#94A3B8;
+    --accent:#7C3AED;
+    --accent-2:#A78BFA;
+    --accent-bg:#EDE9FE;
+    --cyan:#06B6D4;
+    --cyan-2:#67E8F9;
+    --cyan-bg:#CFFAFE;
+    --good:#16A34A;
+    --good-bg:#DCFCE7;
+    --good-border:#BBF7D0;
+    --warn:#D97706;
+    --warn-bg:#FEF3C7;
+    --warn-border:#FDE68A;
+    --bad:#DC2626;
+    --pink:#EC4899;
+    --shadow-xs:0 1px 2px rgba(15,23,42,.04);
+    --shadow:0 4px 12px -2px rgba(15,23,42,.06),0 2px 4px -2px rgba(15,23,42,.03);
+    --shadow-md:0 8px 24px -4px rgba(15,23,42,.08),0 4px 8px -4px rgba(15,23,42,.04);
+    --shadow-lg:0 24px 48px -12px rgba(15,23,42,.14),0 10px 20px -8px rgba(15,23,42,.06);
+    --shadow-glow:0 12px 32px -6px rgba(124,58,237,.18),0 6px 12px -4px rgba(6,182,212,.10);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;color:var(--text);-webkit-font-smoothing:antialiased}
+  body{
+    overflow:hidden;position:relative;
+    background:
+      radial-gradient(circle 700px at 8% -5%, rgba(124,58,237,.12), transparent 55%),
+      radial-gradient(circle 600px at 95% 18%, rgba(6,182,212,.10), transparent 55%),
+      radial-gradient(circle 500px at 50% 110%, rgba(236,72,153,.08), transparent 55%),
+      var(--bg);
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;
+    background-image:radial-gradient(circle, rgba(15,23,42,.05) 1px, transparent 1px);
+    background-size:24px 24px;
+    opacity:.4;
+    mask-image:radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 80%);
+  }
+  .deck{height:100vh;width:100vw;overflow:hidden;position:relative;z-index:1}
+  .slide{
+    position:absolute;inset:0;
+    padding:30px 68px 60px;
+    display:flex;flex-direction:column;
+    opacity:0;transform:translateX(40px);
+    transition:opacity .4s ease, transform .4s ease;
+    pointer-events:none;
+    overflow:hidden;
+  }
+  .slide.active{opacity:1;transform:translateX(0);pointer-events:auto}
+  /* Flex children must keep their natural height — never compress (which clips overflow:hidden cards) */
+  .slide > *{flex-shrink:0}
+
+  /* Decorative orbs — overridden per slide where needed */
+  .orb{position:absolute;border-radius:50%;filter:blur(70px);opacity:.55;pointer-events:none;z-index:0}
+  .orb-violet{background:radial-gradient(circle,#A78BFA 0%,transparent 70%)}
+  .orb-cyan{background:radial-gradient(circle,#67E8F9 0%,transparent 70%)}
+  .orb-pink{background:radial-gradient(circle,#F9A8D4 0%,transparent 70%)}
+  .slide > *:not(.orb):not(.slide-num){position:relative;z-index:1}
+
+  .slide-num{position:absolute;bottom:18px;right:24px;color:var(--muted);font-size:11px;letter-spacing:.14em;font-weight:700;background:var(--surface);border:1px solid var(--line);padding:5px 14px;border-radius:999px;box-shadow:var(--shadow-xs);z-index:5}
+  .brand{color:var(--accent);font-size:11px;letter-spacing:.24em;text-transform:uppercase;font-weight:800;display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-shrink:0}
+  .brand::before{content:"";width:24px;height:2px;background:linear-gradient(90deg,var(--accent),var(--cyan));border-radius:2px;flex-shrink:0}
+
+  /* Title slide */
+  .title-wrap{margin:auto;text-align:center;max-width:1000px;position:relative}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:10px;
+    color:var(--accent);font-size:12px;letter-spacing:.34em;text-transform:uppercase;
+    background:var(--surface);padding:10px 22px;border-radius:999px;
+    border:1px solid var(--accent-bg);box-shadow:var(--shadow-xs);
+    margin-bottom:20px;font-weight:800;
+  }
+  .eyebrow::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px rgba(124,58,237,.18)}
+  .title{
+    font-size:clamp(38px,4.6vw,64px);font-weight:800;line-height:1.05;letter-spacing:-1.5px;margin-bottom:16px;
+    background:linear-gradient(135deg,#0F172A 0%,#7C3AED 50%,#06B6D4 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .title-deco{display:flex;justify-content:center;align-items:center;gap:8px;margin-bottom:18px}
+  .title-deco span{height:3px;border-radius:2px}
+  .title-deco span:nth-child(1){width:60px;background:var(--accent)}
+  .title-deco span:nth-child(2){width:12px;background:var(--accent-2)}
+  .title-deco span:nth-child(3){width:6px;background:var(--cyan)}
+  .subtitle{font-size:20px;color:var(--muted);line-height:1.55;max-width:760px;margin:0 auto;font-weight:400}
+  .meta-row{margin-top:28px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+  .meta-row span{padding:9px 18px;border-radius:999px;background:var(--surface);font-weight:600;color:var(--text-soft);box-shadow:var(--shadow-xs);font-size:13px;border:1px solid var(--line)}
+
+  /* Slide titles */
+  .slide h2{
+    font-size:clamp(28px,3.4vw,44px);font-weight:800;letter-spacing:-1px;line-height:1.1;color:var(--text);
+    margin-bottom:10px;display:block;
+  }
+  .slide h2 .num-tag{
+    display:inline-block;font-size:clamp(28px,3.4vw,44px);font-weight:900;letter-spacing:-1px;
+    background:linear-gradient(135deg,var(--accent),var(--cyan));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    margin-right:14px;vertical-align:baseline;
+  }
+  .slide-head{margin-bottom:14px;display:flex;align-items:flex-start;justify-content:space-between;gap:24px;flex-wrap:wrap}
+  .slide-head .left{flex:1 1 auto;min-width:0;max-width:100%}
+  .slide-head > .chip{flex-shrink:0;align-self:flex-start;margin-top:8px}
+  .h-tag{display:inline-flex;align-items:center;gap:8px;color:var(--muted);font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;margin-top:6px}
+  .h-tag::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent-2)}
+
+  /* Chips */
+  .chip{background:var(--card-soft);color:var(--text-soft);font-size:12px;padding:7px 16px;border-radius:999px;font-weight:700;letter-spacing:.02em;box-shadow:var(--shadow-xs);border:1px solid var(--line)}
+  .chip.live{color:var(--good);background:var(--good-bg);border-color:var(--good-border)}
+  .chip.live::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--good);margin-right:8px;vertical-align:middle;box-shadow:0 0 0 5px rgba(22,163,74,.18)}
+  .chip.warn{color:#92400E;background:var(--warn-bg);border-color:var(--warn-border)}
+
+  /* Two-column market-learning layout */
+  .ml-row{display:grid;grid-template-columns:5fr 7fr;gap:24px;align-items:stretch}
+  @media (max-width:1100px){.ml-row{grid-template-columns:1fr}}
+
+  /* Quote-style card (the "What the market told us" side) */
+  .quote-card{
+    background:linear-gradient(135deg,var(--card-tint),var(--surface) 70%);
+    border-radius:24px;padding:26px 30px 24px;
+    box-shadow:var(--shadow);
+    position:relative;overflow:hidden;
+  }
+  .quote-card::before{
+    content:"";position:absolute;top:-40px;right:-40px;width:180px;height:180px;
+    background:radial-gradient(circle,rgba(124,58,237,.10),transparent 70%);border-radius:50%;
+  }
+  .quote-card .qmark{
+    font-family:Georgia,serif;font-size:120px;line-height:.6;color:var(--accent);opacity:.16;
+    position:absolute;top:24px;right:28px;font-weight:800;
+  }
+  .quote-card .label{color:var(--accent);font-size:11px;letter-spacing:.22em;text-transform:uppercase;margin-bottom:14px;font-weight:800;display:inline-flex;align-items:center;gap:8px}
+  .quote-card .label::before{content:"◆";color:var(--accent-2);font-size:9px}
+  .quote-card p{color:var(--text-soft);font-size:16px;line-height:1.65;position:relative;z-index:2}
+  .quote-card .pullquote{
+    margin-top:18px;padding:14px 18px;background:var(--surface);border-radius:14px;
+    color:var(--text);font-size:15px;line-height:1.55;font-style:italic;
+    border-left:3px solid var(--accent);box-shadow:var(--shadow-xs);
+  }
+
+  /* Feature card (the "What we shipped" side) — slightly elevated */
+  .feature-card{
+    background:var(--surface);border-radius:24px;padding:24px 32px 0;
+    box-shadow:var(--shadow-md);display:flex;flex-direction:column;
+    position:relative;overflow:hidden;
+  }
+  .feature-card::before{
+    content:"";position:absolute;top:0;left:0;right:0;height:4px;
+    background:linear-gradient(90deg,var(--accent),var(--cyan));
+  }
+  .feature-card .label{color:var(--accent);font-size:11px;letter-spacing:.22em;text-transform:uppercase;margin-bottom:14px;font-weight:800;display:inline-flex;align-items:center;gap:8px}
+  .feature-card .label::before{content:"▸";color:var(--cyan);font-size:11px}
+  .feature-card > p{color:var(--text-soft);font-size:15.5px;line-height:1.6;margin-bottom:10px}
+  .feature-card ul{list-style:none;padding:0;margin-top:6px;flex:1}
+  .feature-card ul li{position:relative;padding:6px 0 6px 24px;color:var(--text-soft);font-size:14.5px;line-height:1.55}
+  .feature-card ul li::before{content:"";position:absolute;left:0;top:15px;width:7px;height:7px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--cyan))}
+  .feature-card .impact-ribbon{
+    margin:18px -32px 0;
+    background:linear-gradient(90deg,var(--accent),var(--cyan));
+    color:#fff;padding:14px 32px;
+    font-size:13.5px;font-weight:700;letter-spacing:.02em;
+    display:flex;align-items:center;gap:10px;
+  }
+  .feature-card .impact-ribbon::before{content:"⚡";font-size:14px}
+
+  /* Synthesis pillar cards */
+  .pillar-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:14px}
+  .pillar{
+    position:relative;background:var(--surface);border-radius:20px;padding:22px 22px 24px;
+    box-shadow:var(--shadow);overflow:hidden;transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .pillar:hover{transform:translateY(-3px);box-shadow:var(--shadow-md)}
+  .pillar::after{
+    content:attr(data-num);position:absolute;right:-10px;bottom:-30px;
+    font-size:120px;font-weight:900;color:var(--accent);opacity:.06;line-height:1;letter-spacing:-4px;
+  }
+  .pillar .pkicker{display:inline-block;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);background:var(--accent-bg);padding:4px 10px;border-radius:6px;margin-bottom:14px;font-weight:800}
+  .pillar .pheading{font-size:19px;font-weight:800;margin-bottom:8px;color:var(--text);letter-spacing:-.3px}
+  .pillar .pdesc{font-size:13.5px;color:var(--text-soft);line-height:1.55;position:relative;z-index:2}
+
+  /* CS-takeaway card on synthesis slide */
+  .cs-card{
+    margin-top:16px;background:var(--surface);border-radius:22px;
+    box-shadow:var(--shadow);overflow:hidden;position:relative;
+  }
+  .cs-card .ch{
+    background:linear-gradient(135deg,#1E1B4B,#312E81 60%,#0E7490);
+    color:#fff;padding:14px 28px;
+    display:flex;align-items:center;gap:14px;
+  }
+  .cs-card .ch .badge{
+    background:rgba(255,255,255,.18);color:#fff;font-size:10px;font-weight:800;letter-spacing:.2em;
+    padding:6px 12px;border-radius:999px;flex-shrink:0;white-space:nowrap;
+  }
+  .cs-card .ch .title{font-size:15px;font-weight:700;letter-spacing:.01em;color:#fff}
+  .cs-card .cbody{padding:14px 28px 16px}
+  .cs-card .cbody ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+  .cs-card .cbody li{
+    padding:10px 16px 10px 18px;background:var(--card-soft);
+    border-radius:12px;border-left:3px solid var(--accent);
+    font-size:13.5px;line-height:1.55;color:var(--text-soft);
+  }
+
+  /* Release cards (slide 7) */
+  .release-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:8px}
+  .release-card{
+    position:relative;background:var(--surface);border-radius:22px;
+    box-shadow:var(--shadow);overflow:hidden;
+    transition:transform .25s ease,box-shadow .25s ease;
+    padding:28px 30px;
+  }
+  .release-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md)}
+  .release-card::before{
+    content:"";position:absolute;top:0;left:0;width:6px;height:100%;
+  }
+  .release-card--soon::before{background:linear-gradient(180deg,#22C55E,var(--cyan))}
+  .release-card--later::before{background:linear-gradient(180deg,#A855F7,#6366F1)}
+  .release-card::after{
+    content:attr(data-corner);position:absolute;top:24px;right:32px;
+    font-size:90px;font-weight:900;color:var(--accent);opacity:.05;line-height:.85;letter-spacing:-3px;
+  }
+  .release-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:12px}
+  .release-num{color:var(--muted);font-size:11px;letter-spacing:.32em;font-weight:800}
+  .release-when{font-size:12px;padding:7px 14px;border-radius:999px;letter-spacing:.04em;font-weight:700;white-space:nowrap}
+  .release-card--soon .release-when{color:var(--good);background:var(--good-bg);border:1px solid var(--good-border)}
+  .release-card--soon .release-when::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--good);margin-right:8px;vertical-align:middle;box-shadow:0 0 0 4px rgba(22,163,74,.18)}
+  .release-card--later .release-when{color:var(--accent);background:var(--accent-bg);border:1px solid #DDD6FE}
+  .release-name{font-size:26px;font-weight:800;margin-bottom:10px;letter-spacing:-.5px;line-height:1.15;color:var(--text)}
+  .release-tag{color:var(--muted);font-size:15px;line-height:1.55;margin-bottom:18px;font-style:italic}
+  .release-bullets{list-style:none;padding:0;margin:0 0 16px}
+  .release-bullets li{position:relative;padding:7px 0 7px 22px;font-size:14.5px;line-height:1.55;color:var(--text-soft)}
+  .release-bullets li::before{content:"";position:absolute;left:0;top:14px;width:8px;height:8px;border-radius:2px;transform:rotate(45deg)}
+  .release-card--soon .release-bullets li::before{background:#22C55E}
+  .release-card--later .release-bullets li::before{background:#A855F7}
+  .release-impact{font-size:11.5px;color:var(--muted);padding-top:14px;border-top:1px dashed var(--line);letter-spacing:.08em;text-transform:uppercase;font-weight:700}
+
+  /* Call concurrency — numbered floating steps */
+  .cc-row{display:grid;grid-template-columns:5fr 6fr;gap:30px;margin-top:14px}
+  @media (max-width:1100px){.cc-row{grid-template-columns:1fr}}
+  .sub-label{color:var(--muted);font-size:11px;letter-spacing:.24em;text-transform:uppercase;margin-bottom:9px;font-weight:800;display:flex;align-items:center;gap:10px}
+  .sub-label::before{content:"";width:18px;height:2px;background:linear-gradient(90deg,var(--accent),var(--cyan));border-radius:2px}
+
+  .steps-v{display:flex;flex-direction:column;gap:9px;position:relative}
+  .step-row{
+    background:var(--surface);border-radius:16px;padding:11px 20px 11px 22px;
+    display:flex;gap:16px;align-items:flex-start;box-shadow:var(--shadow);
+    position:relative;transition:transform .2s ease;
+  }
+  .step-row:hover{transform:translateX(3px)}
+  .step-row .n{
+    width:38px;height:38px;flex-shrink:0;border-radius:12px;
+    background:linear-gradient(135deg,var(--accent),var(--cyan));color:#fff;
+    font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center;
+    box-shadow:0 4px 12px -2px rgba(124,58,237,.35);
+    margin-top:2px;
+  }
+  .step-row .body .h{font-size:16px;font-weight:800;color:var(--text);margin-bottom:5px;letter-spacing:-.2px}
+  .step-row .body .p{color:var(--text-soft);font-size:13.5px;line-height:1.6}
+
+  /* Capacity panel */
+  .capacity-panel{
+    background:var(--surface);border-radius:22px;padding:14px 20px;
+    box-shadow:var(--shadow);position:relative;overflow:hidden;
+  }
+  .capacity-panel::after{
+    content:"";position:absolute;top:0;right:0;width:200px;height:200px;
+    background:radial-gradient(circle,rgba(6,182,212,.08),transparent 70%);border-radius:50%;
+  }
+  .stat-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:9px;position:relative;z-index:2}
+  .stat-cell{background:linear-gradient(135deg,var(--card-soft),var(--surface));border-radius:14px;padding:11px 16px;border:1px solid var(--line-soft)}
+  .stat-cell .lbl{color:var(--muted);font-size:10px;letter-spacing:.22em;text-transform:uppercase;margin-bottom:8px;font-weight:800}
+  .stat-cell .v{font-size:34px;font-weight:800;color:var(--text);line-height:1;letter-spacing:-1px;background:linear-gradient(135deg,var(--accent),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .stat-cell .sub{color:var(--muted-2);font-size:11px;margin-top:6px}
+  .calc-line{background:var(--card-soft);border-radius:10px;padding:9px 18px;font-family:'JetBrains Mono','Courier New',monospace;font-size:12.5px;color:var(--text-soft);margin-bottom:6px;position:relative;z-index:2}
+  .calc-line b{color:var(--accent);font-weight:700}
+  .calc-line .ans{color:var(--good);font-weight:800}
+  .total-card{
+    background:linear-gradient(135deg,var(--accent) 0%,#A855F7 50%,var(--cyan) 100%);
+    border-radius:18px;padding:11px;text-align:center;margin-top:9px;
+    box-shadow:0 16px 32px -8px rgba(124,58,237,.45);
+    position:relative;overflow:hidden;
+  }
+  .total-card::before{
+    content:"";position:absolute;inset:0;
+    background:radial-gradient(circle 200px at 80% 20%, rgba(255,255,255,.15), transparent 60%);
+  }
+  .total-card .lbl{color:rgba(255,255,255,.92);font-size:11px;letter-spacing:.26em;text-transform:uppercase;margin-bottom:8px;font-weight:800;position:relative}
+  .total-card .v{font-size:46px;font-weight:900;color:#fff;line-height:1;letter-spacing:-1.5px;position:relative;text-shadow:0 2px 4px rgba(0,0,0,.15)}
+
+  /* Caveat */
+  .caveat{
+    background:linear-gradient(135deg,var(--warn-bg),#FFF7E6);
+    border-radius:14px;padding:10px 18px;margin-top:9px;
+    box-shadow:var(--shadow-xs);position:relative;overflow:hidden;
+    display:flex;gap:14px;align-items:flex-start;
+  }
+  .caveat::before{
+    content:"⚠";font-size:28px;flex-shrink:0;color:var(--warn);line-height:1;
+  }
+  .caveat .body .lbl{color:#92400E;font-size:11px;letter-spacing:.22em;text-transform:uppercase;font-weight:800;margin-bottom:5px}
+  .caveat .body p{color:#78350F;font-size:14px;line-height:1.6}
+
+  /* QC workflow */
+  .qc-flow{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin:10px 0 14px;position:relative}
+  .qc-step{
+    background:var(--surface);border-radius:18px;padding:14px 12px 13px;
+    text-align:center;position:relative;box-shadow:var(--shadow);
+    transition:transform .2s ease;
+  }
+  .qc-step:hover{transform:translateY(-3px)}
+  .qc-step::after{
+    content:"";position:absolute;right:-12px;top:50%;width:18px;height:2px;
+    background:linear-gradient(90deg,var(--accent),var(--cyan));z-index:2;transform:translateY(-50%);
+  }
+  .qc-step::before{
+    content:"";position:absolute;right:-15px;top:50%;width:0;height:0;
+    border-left:6px solid var(--cyan);border-top:5px solid transparent;border-bottom:5px solid transparent;
+    transform:translateY(-50%);z-index:3;
+  }
+  .qc-step:last-child::after,.qc-step:last-child::before{display:none}
+  .qc-step .n{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:34px;height:34px;border-radius:50%;
+    background:linear-gradient(135deg,var(--accent),var(--cyan));color:#fff;
+    font-weight:800;font-size:14px;margin-bottom:9px;
+    box-shadow:0 6px 16px -4px rgba(124,58,237,.4);
+  }
+  .qc-step .h{font-size:13.5px;font-weight:800;margin-bottom:5px;color:var(--text);line-height:1.2;letter-spacing:-.2px}
+  .qc-step .p{font-size:11.5px;color:var(--muted);line-height:1.4}
+  .qc-step.cs-step{background:linear-gradient(135deg,#FAF5FF,var(--surface));}
+  .qc-step.cs-step .n{background:linear-gradient(135deg,#A855F7,var(--pink))}
+
+  /* Process notes */
+  .process-notes{display:grid;grid-template-columns:1fr;gap:7px;margin-top:10px}
+  .process-note{background:var(--surface);border-radius:14px;padding:10px 22px 10px 26px;box-shadow:var(--shadow-xs);position:relative;overflow:hidden}
+  .process-note::before{content:"";position:absolute;top:0;left:0;width:5px;height:100%}
+  .process-note .h{font-size:14px;font-weight:800;color:var(--text);margin-bottom:3px;letter-spacing:-.1px}
+  .process-note .p{color:var(--text-soft);font-size:13px;line-height:1.5}
+  .process-note.green::before{background:linear-gradient(180deg,#22C55E,#10B981)}
+  .process-note.green{background:linear-gradient(90deg,rgba(34,197,94,.04),var(--surface) 35%)}
+  .process-note.amber::before{background:linear-gradient(180deg,#F59E0B,#FB923C)}
+  .process-note.amber{background:linear-gradient(90deg,rgba(245,158,11,.05),var(--surface) 35%)}
+  .process-note.cs::before{background:linear-gradient(180deg,var(--accent),var(--pink))}
+  .process-note.cs{background:linear-gradient(90deg,rgba(124,58,237,.06),var(--surface) 40%)}
+  .process-note.cs .h{color:#5B21B6}
+  .process-note.cs .h::before{content:"CS ACTION · ";color:var(--accent);font-size:10px;letter-spacing:.24em;font-weight:800}
+
+  .qc-team-card{
+    background:linear-gradient(135deg,var(--surface) 0%,var(--card-tint) 100%);
+    border-radius:20px;padding:16px 26px;box-shadow:var(--shadow);
+    display:flex;gap:18px;align-items:center;
+    position:relative;overflow:hidden;
+  }
+  .qc-team-card::after{
+    content:"";position:absolute;top:-30px;right:-30px;width:200px;height:200px;
+    background:radial-gradient(circle,rgba(124,58,237,.08),transparent 70%);
+  }
+  .qc-team-card .qcicon{
+    width:56px;height:56px;flex-shrink:0;border-radius:18px;
+    background:linear-gradient(135deg,var(--accent),var(--cyan));
+    display:flex;align-items:center;justify-content:center;
+    font-size:26px;color:#fff;
+    box-shadow:0 8px 20px -4px rgba(124,58,237,.4);
+  }
+  .qc-team-card .qct-body{flex:1;position:relative;z-index:2}
+  .qc-team-card .qct-body .lbl{color:var(--accent);font-size:11px;letter-spacing:.22em;text-transform:uppercase;font-weight:800;margin-bottom:6px}
+  .qc-team-card .qct-body p{color:var(--text-soft);font-size:14.5px;line-height:1.6}
+
+  /* Knowledge grid */
+  .knowledge-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:6px}
+  .know-card{
+    background:var(--surface);border-radius:18px;padding:20px 22px 18px;
+    display:flex;flex-direction:column;box-shadow:var(--shadow);
+    position:relative;overflow:hidden;transition:transform .25s ease,box-shadow .25s ease;
+  }
+  .know-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-md)}
+  .know-card::before{content:"";position:absolute;top:0;left:0;width:100%;height:4px;background:linear-gradient(90deg,var(--cyan),var(--cyan-2));border-radius:18px 18px 0 0}
+  .know-card .tag{display:inline-block;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--cyan);background:var(--cyan-bg);padding:5px 10px;border-radius:6px;margin-bottom:14px;font-weight:800;width:max-content}
+  .know-card .h{font-size:16px;font-weight:800;color:var(--text);margin-bottom:8px;line-height:1.3;letter-spacing:-.2px}
+  .know-card .p{color:var(--text-soft);font-size:13px;line-height:1.6;margin-bottom:14px;flex:1}
+  .know-card .cs{font-size:11.5px;color:var(--good);padding-top:12px;border-top:1px dashed var(--line);line-height:1.55;letter-spacing:.01em;font-weight:600}
+  .know-card .cs::before{content:"CS · ";font-weight:800;letter-spacing:.18em;color:var(--good)}
+  .know-card.amber::before{background:linear-gradient(90deg,#F59E0B,#FB923C)}
+  .know-card.amber .tag{color:#92400E;background:var(--warn-bg)}
+  .know-card.action::before{background:linear-gradient(90deg,var(--accent),var(--pink))}
+  .know-card.action{background:linear-gradient(135deg,#FAF5FF,var(--surface) 60%)}
+  .know-card.action .tag{color:var(--accent);background:var(--accent-bg)}
+  .know-card.action .cs{color:var(--accent)}
+  .know-card.action .cs::before{color:var(--accent);content:"CS ACTION · "}
+
+  /* Nav */
+  .nav{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);display:flex;gap:8px;background:var(--surface);padding:8px 12px;border-radius:999px;box-shadow:var(--shadow-md);z-index:50;border:1px solid var(--line-soft)}
+  .nav button{background:transparent;color:var(--text);border:1px solid var(--line);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:16px;font-weight:600;transition:all .15s ease}
+  .nav button:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-bg)}
+  .nav .count{color:var(--muted);font-size:12px;align-self:center;padding:0 10px;font-weight:700;letter-spacing:.02em}
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+
+  <!-- 1. Title -->
+  <section class="slide active">
+    <div class="orb orb-violet" style="width:520px;height:520px;top:-120px;left:-100px"></div>
+    <div class="orb orb-cyan" style="width:480px;height:480px;bottom:-140px;right:-100px"></div>
+    <div class="orb orb-pink" style="width:280px;height:280px;top:30%;right:8%;opacity:.35"></div>
+
+    <div class="brand">Knowledge Sharing Session · For CS Managers</div>
+    <div class="title-wrap">
+      <div class="eyebrow">Mio AI Voice</div>
+      <h1 class="title">Market Learnings &amp;<br/>Customer Expectations</h1>
+      <div class="title-deco"><span></span><span></span><span></span></div>
+      <p class="subtitle">Four signals from the market — and what your customers will ask you about. Built for your customer conversations.</p>
+      <div class="meta-row">
+        <span>Kartik Chhabra · Sr. Product Analyst</span>
+        <span>Mio AI Voice Module</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Market Learning 1 · 30s Pulse -->
+  <section class="slide">
+    <div class="orb orb-violet" style="width:360px;height:360px;top:-100px;right:-100px"></div>
+    <div class="orb orb-cyan" style="width:300px;height:300px;bottom:-100px;left:-80px"></div>
+
+    <div class="brand">Market Learning · 01 of 04</div>
+
+    <div class="slide-head">
+      <div class="left">
+        <h2><span class="num-tag">01</span> 30-Second Pulse Billing</h2>
+        <div class="h-tag">Closing the pricing gap with competitors</div>
+      </div>
+      <span class="chip live">Live</span>
+    </div>
+
+    <div class="ml-row">
+      <div class="quote-card">
+        <span class="qmark">“</span>
+        <div class="label">What the market told us</div>
+        <p>Prospects were walking away because competitors billed in <b>30-second blocks</b> while we billed in 60s only. A 35-second reminder call cost a full minute on Mio — but 30s elsewhere.</p>
+        <div class="pullquote">"Your competitor charges us for 30 seconds. Why are we paying for a full minute?"</div>
+      </div>
+      <div class="feature-card">
+        <div class="label">What we shipped &amp; what to tell customers</div>
+        <p><b>Configurable pulse</b> per account — 30s or 60s. Bring it up when:</p>
+        <ul>
+          <li>Customer runs <b>short-form calls</b> (reminders, quick nudges, reactivation).</li>
+          <li>Customer is comparing METS cost to a competitor.</li>
+          <li>Renewal or pricing pushback — pulse becomes a commercial lever.</li>
+        </ul>
+        <div class="impact-ribbon">Stops deal losses on commercials · protects renewals</div>
+      </div>
+    </div>
+
+    <div class="slide-num">02</div>
+  </section>
+
+  <!-- 3. Market Learning 2 · Outcomes Dashboard -->
+  <section class="slide">
+    <div class="orb orb-cyan" style="width:380px;height:380px;top:-100px;left:-100px"></div>
+    <div class="orb orb-pink" style="width:280px;height:280px;bottom:-80px;right:-60px"></div>
+
+    <div class="brand">Market Learning · 02 of 04</div>
+
+    <div class="slide-head">
+      <div class="left">
+        <h2><span class="num-tag">02</span> Outcomes Dashboard</h2>
+        <div class="h-tag">From "activity tracking" → ROI proving</div>
+      </div>
+      <span class="chip live">Live</span>
+    </div>
+
+    <div class="ml-row">
+      <div class="quote-card">
+        <span class="qmark">“</span>
+        <div class="label">What the market told us</div>
+        <p>Customers couldn't answer the one question they always asked — <b>"Is Mio actually working for us?"</b> They saw calls dialed, not outcomes. No view of best calling time. No per-agent success.</p>
+      </div>
+      <div class="feature-card">
+        <div class="label">What we shipped &amp; what to tell customers</div>
+        <p>A revamped dashboard built around <b>outcomes, not activity</b>:</p>
+        <ul>
+          <li><b>Goal Achieved</b>, Connection %, Avg Attempts — with period-over-period deltas.</li>
+          <li><b>Per-agent success table</b> — see which agent is converting best.</li>
+          <li><b>Call connection heatmap</b> — best hours / days for your leads.</li>
+          <li><b>Outcomes over time</b> — 7d / 30d / 90d trends.</li>
+        </ul>
+        <div class="impact-ribbon">Use in every QBR · diagnose stuck adoption · anchor renewals</div>
+      </div>
+    </div>
+
+    <div class="slide-num">03</div>
+  </section>
+
+  <!-- 4. Market Learning 3 · Mio in OM -->
+  <section class="slide">
+    <div class="orb orb-violet" style="width:400px;height:400px;top:-100px;right:-80px"></div>
+    <div class="orb orb-cyan" style="width:320px;height:320px;bottom:-80px;left:-100px"></div>
+
+    <div class="brand">Market Learning · 03 of 04</div>
+
+    <div class="slide-head">
+      <div class="left">
+        <h2><span class="num-tag">03</span> Mio Voice in Opportunity Manager</h2>
+        <div class="h-tag">Unlocking program-led funnels — banks &amp; large edtechs</div>
+      </div>
+      <span class="chip warn">Shipping</span>
+    </div>
+
+    <div class="ml-row">
+      <div class="quote-card">
+        <span class="qmark">“</span>
+        <div class="label">What the market told us</div>
+        <p>Big-ticket accounts like <b>NIIT</b> were running opportunity-based calling — but pushing data <i>out</i> of Meritto to Squadstack via webhook because Mio worked only on leads.</p>
+        <p style="margin-top:10px">Banks (SBI YBP, HDFC YBP, ICICI YBP) and multi-program institutions run their funnels as <b>opportunities</b>. Mio couldn't touch them.</p>
+      </div>
+      <div class="feature-card">
+        <div class="label">What we shipped &amp; what to tell customers</div>
+        <p><b>Mio AI Voice is now a first-class module in Opportunity Manager.</b></p>
+        <ul>
+          <li>Bulk calling directly from any opportunity list.</li>
+          <li>Per-program agent, pitch &amp; DID — clean attribution per list.</li>
+          <li>Independent retry chains — same lead pursued by 3 programs in parallel.</li>
+          <li>Dedicated OM tab in Mio Insights.</li>
+        </ul>
+        <div class="impact-ribbon">Unlocks big-ticket accounts · stops revenue leakage</div>
+      </div>
+    </div>
+
+    <div class="slide-num">04</div>
+  </section>
+
+  <!-- 5. Market Learning 4 · Call Retry -->
+  <section class="slide">
+    <div class="orb orb-pink" style="width:380px;height:380px;top:-120px;left:-80px"></div>
+    <div class="orb orb-cyan" style="width:300px;height:300px;bottom:-80px;right:-80px"></div>
+
+    <div class="brand">Market Learning · 04 of 04</div>
+
+    <div class="slide-head">
+      <div class="left">
+        <h2><span class="num-tag">04</span> Call Retry Feature</h2>
+        <div class="h-tag">Table-stakes parity with Squadstack &amp; other voice vendors</div>
+      </div>
+      <span class="chip warn">Going live · 2 July 2026</span>
+    </div>
+
+    <div class="ml-row">
+      <div class="quote-card">
+        <span class="qmark">“</span>
+        <div class="label">What the market told us</div>
+        <p>Competitors already had configurable retry. We didn't. Customers were stuck at <b>~30% connection rate</b> on single-attempt campaigns and treating that as a hard ceiling.</p>
+        <p style="margin-top:10px">RFPs were scoring "retry strategy" as a must-have.</p>
+      </div>
+      <div class="feature-card">
+        <div class="label">What we shipped &amp; what to tell customers</div>
+        <p>Intelligent retry across every Mio campaign:</p>
+        <ul>
+          <li><b>Immediate</b> retries — back-to-back, for time-bound calls (e.g. exam reminders).</li>
+          <li><b>Scheduled</b> retries — across hours / days, for reactivation &amp; nudges.</li>
+          <li>Calling-window aware. Stops automatically when the lead picks up or calls back.</li>
+        </ul>
+        <div class="impact-ribbon">+15–20% connection lift · more conversations · more conversions</div>
+      </div>
+    </div>
+
+    <div class="slide-num">05</div>
+  </section>
+
+  <!-- 6. Synthesis -->
+  <section class="slide">
+    <div class="orb orb-violet" style="width:420px;height:420px;top:-100px;right:-100px"></div>
+    <div class="orb orb-cyan" style="width:340px;height:340px;bottom:-80px;left:-80px"></div>
+
+    <div class="brand">The pattern across all four</div>
+
+    <div class="slide-head">
+      <div class="left">
+        <h2>Where Mio is heading</h2>
+        <div class="h-tag">From a calling tool → a commercial system of record for voice outreach</div>
+      </div>
+    </div>
+
+    <div class="pillar-grid">
+      <div class="pillar" data-num="01">
+        <div class="pkicker">Pricing</div>
+        <div class="pheading">30s Pulse</div>
+        <div class="pdesc">Removes the commercial objection.</div>
+      </div>
+      <div class="pillar" data-num="02">
+        <div class="pkicker">Proof</div>
+        <div class="pheading">Outcomes Dashboard</div>
+        <div class="pdesc">Makes ROI visible — in the customer's own login.</div>
+      </div>
+      <div class="pillar" data-num="03">
+        <div class="pkicker">Reach</div>
+        <div class="pheading">OM Mio Voice</div>
+        <div class="pdesc">Unlocks accounts we couldn't fully serve.</div>
+      </div>
+      <div class="pillar" data-num="04">
+        <div class="pkicker">Performance</div>
+        <div class="pheading">Call Retry</div>
+        <div class="pdesc">+15–20% connection lift, baked in.</div>
+      </div>
+    </div>
+
+    <div class="cs-card">
+      <div class="ch">
+        <span class="badge">FOR CS</span>
+        <span class="title">What this means for your customer conversations</span>
+      </div>
+      <div class="cbody">
+        <ul>
+          <li>In QBRs &amp; renewals, lead with <b>Goal Achieved</b> (qualified / reactivated leads) — not just call volume. <b>For the customer:</b> they see real outcomes &amp; ROI, not activity logs. <b>For CS:</b> a concrete, number-backed renewal story instead of "trust us, it's working."</li>
+          <li>Use OM Mio as the door-opener for program-heavy accounts (banks, multi-program edtechs).</li>
+          <li>Pulse + retry are levers for "is this worth it?" pushback.</li>
+          <li>Diagnose adoption-stuck accounts via the heatmap before going on-call.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="slide-num">06</div>
+  </section>
+
+  <!-- 7. More releases -->
+  <section class="slide">
+    <div class="orb orb-cyan" style="width:380px;height:380px;top:-100px;left:-100px"></div>
+    <div class="orb orb-violet" style="width:340px;height:340px;bottom:-80px;right:-80px"></div>
+
+    <div class="brand">Also in flight</div>
+
+    <div class="slide-head">
+      <div class="left">
+        <h2>Beyond the four — also shipping soon</h2>
+        <div class="h-tag">Two more bets that support the big themes</div>
+      </div>
+    </div>
+
+    <div class="release-grid">
+      <div class="release-card release-card--soon" data-corner="05">
+        <div class="release-top">
+          <span class="release-num">RELEASE · 05</span>
+          <span class="release-when">Going live · next week</span>
+        </div>
+        <div class="release-name">Dynamic Activity Handling</div>
+        <div class="release-tag">Filter your leads by Mio call outcomes — directly inside Lead Manager.</div>
+        <ul class="release-bullets">
+          <li>New filters: <b>Mio Call Status</b>, <b>Call Type</b>, <b>Call Start Date</b>, and more.</li>
+          <li>Slice the lead list by outcome — e.g. "all leads where last Mio call was <i>Busy</i>."</li>
+          <li>No more digging into the timeline to know what Mio did.</li>
+        </ul>
+        <div class="release-impact">For CS · cleaner follow-up workflows · faster lead triage</div>
+      </div>
+
+      <div class="release-card release-card--later" data-corner="06">
+        <div class="release-top">
+          <span class="release-num">RELEASE · 06</span>
+          <span class="release-when">Pickup Jul · Live end Aug 2026</span>
+        </div>
+        <div class="release-name">Schedule Mio Campaign</div>
+        <div class="release-tag">Schedule for the right time — with best-time recommendations baked in.</div>
+        <ul class="release-bullets">
+          <li>Run campaigns at the institute's <b>best calling hours</b>, learned from history.</li>
+          <li>No more "launch and hope" — pick the time leads actually pick up.</li>
+          <li>Recommendation is per-college, derived from past Mio connectivity.</li>
+        </ul>
+        <div class="release-impact">For CS · higher connection rates with zero customer effort</div>
+      </div>
+    </div>
+
+    <div class="slide-num">07</div>
+  </section>
+
+  <!-- 8. Call Concurrency -->
+  <section class="slide">
+    <div class="orb orb-violet" style="width:380px;height:380px;top:-100px;right:-100px"></div>
+    <div class="orb orb-cyan" style="width:340px;height:340px;bottom:-100px;left:-80px"></div>
+
+    <div class="brand">Customer Expectations · 01 · For CS</div>
+
+    <div class="slide-head">
+      <div class="left">
+        <h2>Call Concurrency</h2>
+        <div class="h-tag">"Why can't I dial faster?" — what to say</div>
+      </div>
+    </div>
+
+    <div class="qc-team-card" style="margin-bottom:14px">
+      <div class="qcicon">📞</div>
+      <div class="qct-body">
+        <div class="lbl">The one-liner</div>
+        <p><b>Dedicated lines = parallel calls at a moment.</b> Concurrency defines how many calls a client can place <b>simultaneously</b> when a campaign runs. We allocate <b>dedicated channels</b> per entity — locked in the MoU, never shared.</p>
+      </div>
+    </div>
+
+    <div class="cc-row">
+      <div>
+        <div class="sub-label">How it works</div>
+        <div class="steps-v">
+          <div class="step-row">
+            <div class="n">1</div>
+            <div class="body">
+              <div class="h">MoU-Based Allocation</div>
+              <div class="p">Each client's concurrency is set in the MoU — the max calls flowing simultaneously during a campaign.</div>
+            </div>
+          </div>
+          <div class="step-row">
+            <div class="n">2</div>
+            <div class="body">
+              <div class="h">Dedicated per Entity</div>
+              <div class="p">Channels are reserved for the client — <b>never shared</b>. Guaranteed parallel capacity at all times.</div>
+            </div>
+          </div>
+          <div class="step-row">
+            <div class="n">3</div>
+            <div class="body">
+              <div class="h">Upgrade on Demand</div>
+              <div class="p">Clients can <b>buy additional channels</b> to finish jobs faster. <b>CS upsell lever</b> when high volume is seen.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="sub-label">Capacity example · 10 channels · 9 working hrs</div>
+        <div class="capacity-panel">
+          <div class="stat-row">
+            <div class="stat-cell">
+              <div class="lbl">Avg Duration</div>
+              <div class="v">60s</div>
+              <div class="sub">ring + connect + processing</div>
+            </div>
+            <div class="stat-cell">
+              <div class="lbl">Channels</div>
+              <div class="v">10</div>
+              <div class="sub">dedicated lines</div>
+            </div>
+          </div>
+          <div class="calc-line"><b>Per channel / 9 hrs:</b> 9 × 60 = 540 min ÷ 1 min/call = <span class="ans">540 calls</span></div>
+          <div class="calc-line"><b>Across 10 channels:</b> 540 × 10 = <span class="ans">5,400 calls</span></div>
+          <div class="total-card">
+            <div class="lbl">Total capacity in 9 hrs</div>
+            <div class="v">~5,400 calls</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="caveat">
+      <div class="body">
+        <div class="lbl">Important caveat — set this expectation with the customer</div>
+        <p>This assumes <b>continuous calling, no idle time, no agent delays, no vendor downtime</b>. Real-world numbers are lower. For high-volume clients, recommend <b>more concurrent channels</b> upfront to avoid queue buildup.</p>
+      </div>
+    </div>
+
+    <div class="slide-num">08</div>
+  </section>
+
+  <!-- 9. QC Process -->
+  <section class="slide">
+    <div class="orb orb-cyan" style="width:380px;height:380px;top:-100px;left:-100px"></div>
+    <div class="orb orb-pink" style="width:280px;height:280px;bottom:-60px;right:-80px"></div>
+
+    <div class="brand">Customer Expectations · 02 · For CS</div>
+
+    <div class="slide-head">
+      <div class="left">
+        <h2>How We QC Mio Voice</h2>
+        <div class="h-tag">The process — and where CS plugs in</div>
+      </div>
+    </div>
+
+    <div class="qc-team-card" style="margin-bottom:8px">
+      <div class="qcicon">👥</div>
+      <div class="qct-body">
+        <div class="lbl">The QC Team</div>
+        <p>A dedicated <b>3-member QC team</b> inside Mio Voice runs <b>random sampling of calls across all active clients</b> — to catch defects early, maintain consistent quality, and surface client-impacting issues <i>before</i> they escalate.</p>
+      </div>
+    </div>
+
+    <div class="sub-label" style="margin-top:18px">End-to-end QC workflow</div>
+    <div class="qc-flow">
+      <div class="qc-step">
+        <div class="n">1</div>
+        <div class="h">Random Sampling</div>
+        <div class="p">Pull random calls across all active clients</div>
+      </div>
+      <div class="qc-step">
+        <div class="n">2</div>
+        <div class="h">Call Review</div>
+        <div class="p">QC reviews &amp; categorises quality issues</div>
+      </div>
+      <div class="qc-step">
+        <div class="n">3</div>
+        <div class="h">Spam Check</div>
+        <div class="p">Verify if calling number is flagged as SPAM</div>
+      </div>
+      <div class="qc-step cs-step">
+        <div class="n">4</div>
+        <div class="h">CS Escalation</div>
+        <div class="p">Email concerned CS POC if spam found</div>
+      </div>
+      <div class="qc-step cs-step">
+        <div class="n">5</div>
+        <div class="h">Number Rotation</div>
+        <div class="p">Replace number post client approval &amp; payment</div>
+      </div>
+    </div>
+
+    <div class="process-notes">
+      <div class="process-note green">
+        <div class="h">Steps 1–2 · Sampling &amp; Review</div>
+        <div class="p">QC manually reviews each sampled call for <b>agent performance, TTS pronunciation, STT accuracy, system detection issues, technical/network problems</b>, and overall conversation quality. All findings are logged in the QC dashboard with category tags.</div>
+      </div>
+      <div class="process-note amber">
+        <div class="h">Step 3 · Spam Number Verification</div>
+        <div class="p">For every sampled call, QC checks if the outbound number is <b>flagged as SPAM by carriers / Truecaller</b>. Spam-flagged numbers kill pickup rates and damage client experience — early detection is critical.</div>
+      </div>
+      <div class="process-note cs">
+        <div class="h">Steps 4–5 · CS coordination &amp; number rotation</div>
+        <div class="p">When a number is spam-flagged, QC <b>emails the concerned CS POC</b> with affected client details. CS drives the client conversation: <b>(a)</b> get approval for replacement, <b>(b)</b> inform the client that <b>payment is required</b> for rotation, <b>(c)</b> execute the rotation once client confirms.</div>
+      </div>
+    </div>
+
+    <div class="slide-num">09</div>
+  </section>
+
+  <!-- 10. Customer Expectation -->
+  <section class="slide">
+    <div class="orb orb-violet" style="width:420px;height:420px;top:-100px;right:-100px"></div>
+    <div class="orb orb-cyan" style="width:320px;height:320px;bottom:-80px;left:-80px"></div>
+
+    <div class="brand">Customer Expectations · 03 · For CS</div>
+
+    <div class="slide-head">
+      <div class="left">
+        <h2>Customer Expectation</h2>
+        <div class="h-tag">Common questions &amp; expectations your customers may raise</div>
+      </div>
+    </div>
+
+    <div class="knowledge-grid">
+
+      <div class="know-card">
+        <span class="tag">Agent Behaviour</span>
+        <div class="h">No Memory · Inbound = Unknown Caller</div>
+        <div class="p">Mio agents (OB &amp; IB) <b>don't carry memory across calls</b>. For inbound specifically, no name / course / past context is fetched — every inbound is treated as an <b>unknown caller</b>.</div>
+        <div class="cs">Don't promise personalised inbound conversations. Set this expectation upfront.</div>
+      </div>
+
+      <div class="know-card">
+        <span class="tag">Agent Behaviour</span>
+        <div class="h">Inbound = Callback, NOT Website Redirect</div>
+        <div class="p">The "inbound agent" is a <b>callback agent</b> for a paired outbound. It is <b>not</b> a website call-routing or call-deflection agent.</div>
+        <div class="cs">Clarify this if a client asks about routing inbound calls from their website.</div>
+      </div>
+
+      <div class="know-card amber">
+        <span class="tag">Multilingual</span>
+        <div class="h">Slightly Higher Response Time</div>
+        <div class="p">Multilingual agents respond <b>slightly slower</b> than English-only or Hindi-only agents. This is expected behaviour, not a defect.</div>
+        <div class="cs">Flag this to the customer at launch. Don't treat as a bug.</div>
+      </div>
+
+      <div class="know-card amber">
+        <span class="tag">Multilingual</span>
+        <div class="h">Max 2 Languages per Agent</div>
+        <div class="p">A multilingual agent supports a maximum of <b>2 languages</b> — typically English + one regional (Hindi / Tamil / Telugu / etc.).</div>
+        <div class="cs">For 3+ languages, the customer needs separate agents per language pair.</div>
+      </div>
+
+      <div class="know-card action">
+        <span class="tag">Setup · CS Owned</span>
+        <div class="h">Multilingual SPOC at Testing</div>
+        <div class="p">CS / Sales must arrange a <b>multilingual SPOC from the client side</b> during agent <b>creation, alteration, and testing</b> phases.</div>
+        <div class="cs">Owned by CS Owner or Sales Owner — pre-flag this during onboarding.</div>
+      </div>
+
+      <div class="know-card action">
+        <span class="tag">Setup · DID Pairing</span>
+        <div class="h">Shared DID → Paired Callbacks</div>
+        <div class="p">If 2+ outbound agents share a DID, each outbound gets its <b>own paired callback</b> agent. One callback agent <b>cannot</b> cover multiple outbound agents on the same DID.</div>
+        <div class="cs">Important during setup — affects callback agent count &amp; configuration.</div>
+      </div>
+
+    </div>
+
+    <div class="slide-num">10</div>
+  </section>
+
+</div>
+
+<div class="nav">
+  <button id="prev" aria-label="Previous">‹</button>
+  <span class="count"><span id="cur">1</span> / <span id="tot">10</span></span>
+  <button id="next" aria-label="Next">›</button>
+</div>
+
+<script>
+  const slides=[...document.querySelectorAll('.slide')];
+  const cur=document.getElementById('cur');
+  const tot=document.getElementById('tot');
+  tot.textContent=slides.length;
+  let i=0;
+  function go(n){
+    i=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach((s,idx)=>s.classList.toggle('active',idx===i));
+    cur.textContent=i+1;
+  }
+  document.getElementById('next').onclick=()=>go(i+1);
+  document.getElementById('prev').onclick=()=>go(i-1);
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' ')go(i+1);
+    else if(e.key==='ArrowLeft'||e.key==='PageUp')go(i-1);
+    else if(e.key==='Home')go(0);
+    else if(e.key==='End')go(slides.length-1);
+  });
+</script>
+</body>
+</html>
